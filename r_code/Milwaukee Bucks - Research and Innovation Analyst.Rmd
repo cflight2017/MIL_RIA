@@ -1,0 +1,81 @@
+---
+title: "Milwaukee Bucks - Research and Innovation Analyst"
+author: "Christien Wright"
+date: "11/21/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r setup_packages}
+library(tidyverse)
+library(reticulate)
+
+use_python("/usr/local/bin/python3")
+```
+
+```{python}
+import os
+#os.system("python3")
+import sys
+import pandas as pd
+import selenium
+from selenium import webdriver
+from bs4 import BeautifulSoup
+```
+
+```{python}
+
+data = pd.read_csv('~/Injury Analytics/player_info.csv')
+
+#All players as of 2020 prior to NBA draft 
+data_filter = data[(data['From'] >= 2000) & (data['To'] == 2020)]
+
+
+
+salary_data = pd.DataFrame()
+parent_link = 'https://www.basketball-reference.com'
+salary_ = '#all_all_salaries'
+
+driver = webdriver.Safari()
+
+for i in range(len(data_filter)):
+    try:
+        link = parent_link + str(data_filter.player_link.iloc[i]) + salary_
+        print(data_filter.player_link.iloc[i])
+        driver.implicitly_wait(30)
+        driver.get(link)
+        
+        #After opening the url above, Selenium clicks the specific agency link
+        python_button = driver.find_element_by_xpath('//*[@id="all_salaries"]')
+        
+        python_button.click() #click the table with salaries
+        
+        soup_level1=BeautifulSoup(driver.page_source, 'lxml')
+        
+        #Beautiful Soup grabs the HTML table on the page
+        table = soup_level1.find_all('table')
+        
+        df = pd.read_html(str(table),header=0)
+        
+        salary = list(filter(lambda x: 'Salary' in x, df))
+        
+        
+        salary_df = pd.DataFrame(salary[0])
+        salary_df['player_link'] = data_filter.player_link.iloc[i]
+        salary_data = salary_data.append(salary_df)
+    
+        time.sleep(30)
+    except:
+        continue
+    
+
+
+
+```
+
+
+
