@@ -8,4 +8,6 @@ I collected draft combine data from nba.com and then joined it with career stati
 
 ### Note: There are a mix of r and python files, but ultimately this experience is best consumed via the shiny app.
 
+https://coachcwright.shinyapps.io/mil_ria/
+
 ### Question two - in Python
